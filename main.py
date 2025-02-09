@@ -18,11 +18,9 @@ import argparse
 
 LOG_DATE = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
-# Create a logger
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-# Create a file handler and a stream handler
 LOG_DIR = "logs"
 log_execution = f"{LOG_DATE}_web_monitor.log"
 os.makedirs(LOG_DIR, exist_ok=True)
@@ -30,12 +28,10 @@ log_path = os.path.join(LOG_DIR, log_execution)
 file_handler = logging.FileHandler(log_path)
 stream_handler = logging.StreamHandler()
 
-# Create a formatter and add it to the handlers
 formatter = logging.Formatter('(%(asctime)s) [%(levelname)s] %(message)s')
 file_handler.setFormatter(formatter)
 stream_handler.setFormatter(formatter)
 
-# Add the handlers to the logger
 logger.addHandler(file_handler)
 logger.addHandler(stream_handler)
 
@@ -60,26 +56,10 @@ def setup_driver(browser="chrome"):
     :return: the WebDriver instance
     :raises ValueError: if the specified browser is not supported
     """
-    if browser == "chrome":
-        options = ChromeOptions()
-        #driver_path = params["chrome_driver_path"]
-        #service = ChromeService(driver_path)
-        #return webdriver.Chrome(service=service, options=options)
-        return webdriver.Chrome(options=options)
-    elif browser == "edge":
-        options = EdgeOptions()
-        #driver_path = params["edge_driver_path"]
-        #service = EdgeService(driver_path)
-        #return webdriver.Edge(service=service, options=options)
-        return webdriver.Edge(options=options)
-    elif browser == "firefox":
-        options = FirefoxOptions()
-        #driver_path = params["firefox_driver_path"]
-        #service = FirefoxService(driver_path)
-        #return webdriver.Firefox(service=service, options=options)
-        return webdriver.Firefox(options=options)
-    else:
-        raise ValueError("Unsupported browser!")
+    if browser == "chrome": return webdriver.Chrome(options=ChromeOptions())
+    elif browser == "edge": return webdriver.Edge(options=EdgeOptions())
+    elif browser == "firefox": return webdriver.Firefox(options=FirefoxOptions())
+    else: raise ValueError("Unsupported browser!")
 
 def monitor_website(browser):
     """
@@ -123,37 +103,30 @@ def monitor_website(browser):
 
         # [4] Fill the form and search
 
-        # Fill in the first text box
         driver.find_element(
             By.ID,
             "em-search-form__searchstreet",
         ).send_keys(params["agency_name"])
 
-        # Wait until the first text box contains the expected value
-        WebDriverWait(driver, 10).until(
+        driver_wait.until(
             lambda driver: driver.find_element(
                 By.ID,
                 "em-search-form__searchstreet",
             ).get_attribute("value") == params["agency_name"]
-        )
-        logger.info(f"Searching agency \'{params['agency_name']}\'...")
+        ); logger.info(f"Searching agency \'{params['agency_name']}\'...")
 
-        # Fill in the second text box
         driver.find_element(
             By.ID,
             "em-search-form__searchcity"
         ).send_keys(params["agency_postal_code"])
 
-        # Wait until the second text box contains the expected value
-        WebDriverWait(driver, 10).until(
+        driver_wait.until(
             lambda driver: driver.find_element(
                 By.ID,
                 "em-search-form__searchcity",
             ).get_attribute("value") == params["agency_postal_code"]
-        )
-        logger.info(f"Searching agency postal code \'{params['agency_postal_code']}\'...")
+        ); logger.info(f"Searching agency postal code \'{params['agency_postal_code']}\'...")
 
-        # Wait for the search button to be clickable and click it
         driver_wait.until(
             EC.element_to_be_clickable(
                 (
