@@ -16,12 +16,14 @@ from selenium.webdriver.common.action_chains import ActionChains
 import xml.etree.ElementTree as ET
 import argparse
 
+LOG_DATE = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
 # Create a logger
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 # Create a file handler and a stream handler
-file_handler = logging.FileHandler('web_monitor.log')
+file_handler = logging.FileHandler(f'logs/{LOG_DATE}_web_monitor.log')
 stream_handler = logging.StreamHandler()
 
 # Create a formatter and add it to the handlers
@@ -45,7 +47,6 @@ def load_params(file_path):
     return {child.tag: child.text for child in root}
 
 params = load_params("params.xml")
-LOG_DATE = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 def setup_driver(browser="chrome"):
     """
@@ -88,7 +89,8 @@ def monitor_website(browser):
         driver.maximize_window()
 
         # [1] Access website
-        logger.info(f'Accessing URL: \'{params["website_url"]}\'')
+        logger.info(f"Browser: {browser}")
+        logger.info(f'Accessing URL \'{params["website_url"]}\'')
         driver.get(params["website_url"])
         driver_wait = WebDriverWait(driver, params["event_wait"])
         logger.info(f'Successfully accessed \'{params["website_url"]}\'')
@@ -184,6 +186,13 @@ def monitor_website(browser):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Monitor website availability.")
-    parser.add_argument("-b", "--browser", choices=["chrome", "edge", "firefox"], default="chrome", help="the browser to use")
+    parser.add_argument(
+        "-b",
+        "--browser",
+        type=str.lower,
+        choices=["chrome", "edge", "firefox"],
+        default="chrome",
+        help="Select browser to run (default: chrome)",
+    )
     args = parser.parse_args()
     monitor_website(args.browser)
