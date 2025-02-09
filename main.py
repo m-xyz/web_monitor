@@ -13,6 +13,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
 import xml.etree.ElementTree as ET
+import argparse
 
 def load_params(file_path):
     """
@@ -38,23 +39,26 @@ def setup_driver(browser="chrome"):
     """
     if browser == "chrome":
         options = ChromeOptions()
-        driver_path = params["chrome_driver_path"]
-        service = ChromeService(driver_path)
-        return webdriver.Chrome(service=service, options=options)
+        #driver_path = params["chrome_driver_path"]
+        #service = ChromeService(driver_path)
+        #return webdriver.Chrome(service=service, options=options)
+        return webdriver.Chrome(options=options)
     elif browser == "edge":
         options = EdgeOptions()
-        driver_path = params["edge_driver_path"]
-        service = EdgeService(driver_path)
-        return webdriver.Edge(service=service, options=options)
+        #driver_path = params["edge_driver_path"]
+        #service = EdgeService(driver_path)
+        #return webdriver.Edge(service=service, options=options)
+        return webdriver.Edge(options=options)
     elif browser == "firefox":
         options = FirefoxOptions()
-        driver_path = params["firefox_driver_path"]
-        service = FirefoxService(driver_path)
-        return webdriver.Firefox(service=service, options=options)
+        #driver_path = params["firefox_driver_path"]
+        #service = FirefoxService(driver_path)
+        #return webdriver.Firefox(service=service, options=options)
+        return webdriver.Firefox(options=options)
     else:
         raise ValueError("Unsupported browser!")
 
-def monitor_website(browser="chrome"):
+def monitor_website(browser):
     """
     Monitors the availability of a website on a specified browser (defaults to Chrome).
 
@@ -62,8 +66,7 @@ def monitor_website(browser="chrome"):
     """
     try:
         # Initialize WebDriver for the specified browser
-        #driver = setup_driver(browser)
-        driver = webdriver.Firefox()
+        driver = setup_driver(browser)
         driver.maximize_window()
 
         # [1] Access website
@@ -91,23 +94,16 @@ def monitor_website(browser="chrome"):
         ).click()
 
         # [4] Fill the form and search
-        #driver.find_element(By.ID, "em-search-form__searchstreet").send_keys(f"{params["agency_name"]}\n")
-        #driver.find_element(By.ID, "em-search-form__searchcity").send_keys(f"{params["agency_postal_code"]}\n")
-        #driver_wait.until(
-        #    EC.element_to_be_clickable(
-        #            (
-        #                By.CSS_SELECTOR,
-        #                ".em-search-form__submit.em-button.em-button--primary",
-        #            ),
-        #    ),
-        #).click()
 
         # Fill in the first text box
         driver.find_element(By.ID, "em-search-form__searchstreet").send_keys(params["agency_name"])
 
         # Wait until the first text box contains the expected value
         WebDriverWait(driver, 10).until(
-            lambda driver: driver.find_element(By.ID, "em-search-form__searchstreet").get_attribute("value") == params["agency_name"]
+            lambda driver: driver.find_element(
+                By.ID,
+                "em-search-form__searchstreet",
+            ).get_attribute("value") == params["agency_name"]
         )
 
         # Fill in the second text box
@@ -115,16 +111,21 @@ def monitor_website(browser="chrome"):
 
         # Wait until the second text box contains the expected value
         WebDriverWait(driver, 10).until(
-            lambda driver: driver.find_element(By.ID, "em-search-form__searchcity").get_attribute("value") == params["agency_postal_code"]
+            lambda driver: driver.find_element(
+                By.ID,
+                "em-search-form__searchcity",
+            ).get_attribute("value") == params["agency_postal_code"]
         )
 
         # Wait for the search button to be clickable and click it
         driver_wait.until(
             EC.element_to_be_clickable(
-                (By.CSS_SELECTOR, ".em-search-form__submit.em-button.em-button--primary")
-            )
+                (
+                    By.CSS_SELECTOR,
+                    ".em-search-form__submit.em-button.em-button--primary",
+                ),
+            ),
         ).click()
-
 
         # [5] Click on location 4 on the map
         agency_waypoint = driver_wait.until(
@@ -152,4 +153,7 @@ def monitor_website(browser="chrome"):
     finally: driver.quit()
 
 if __name__ == "__main__":
-    monitor_website("firefox")
+    parser = argparse.ArgumentParser(description="Monitor website availability.")
+    parser.add_argument("-b", "--browser", choices=["chrome", "edge", "firefox"], default="chrome", help="the browser to use")
+    args = parser.parse_args()
+    monitor_website(args.browser)
