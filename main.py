@@ -23,7 +23,11 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 # Create a file handler and a stream handler
-file_handler = logging.FileHandler(f'logs/{LOG_DATE}_web_monitor.log')
+LOG_DIR = "logs"
+log_execution = f"{LOG_DATE}_web_monitor.log"
+os.makedirs(LOG_DIR, exist_ok=True)
+log_path = os.path.join(LOG_DIR, log_execution)
+file_handler = logging.FileHandler(log_path)
 stream_handler = logging.StreamHandler()
 
 # Create a formatter and add it to the handlers
@@ -177,7 +181,7 @@ def monitor_website(browser):
 
     except Exception as e:
         logger.error(f"{e}")
-        log_path = os.path.join("logs", LOG_DATE)
+        log_path = os.path.join(LOG_DIR, LOG_DATE)
         os.makedirs(log_path, exist_ok=True)
         screenshot_path = os.path.join(log_path, f"error_screenshot_{browser}.png")
         driver.save_screenshot(screenshot_path)
