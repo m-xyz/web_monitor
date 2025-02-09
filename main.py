@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 LOG_DIR = "logs"
-log_execution = f"{LOG_DATE}_web_monitor.log"
+log_execution = f'{LOG_DATE}_web_monitor.log'
 os.makedirs(LOG_DIR, exist_ok=True)
 log_path = os.path.join(LOG_DIR, log_execution)
 file_handler = logging.FileHandler(log_path)
@@ -73,7 +73,7 @@ def monitor_website(browser):
         driver.maximize_window()
 
         # [1] Access website
-        logger.info(f"Browser: {browser}")
+        logger.info(f'Browser: {browser}')
         logger.info(f'Accessing URL \'{params["website_url"]}\'')
         driver.get(params["website_url"])
         driver_wait = WebDriverWait(driver, params["event_wait"])
@@ -95,7 +95,7 @@ def monitor_website(browser):
             EC.element_to_be_clickable(
                     (
                         By.XPATH,
-                        "//p[text()='Trouver une agence']/ancestor::span[@class='link-list lnk']",
+                        '//p[text()="Trouver une agence"]/ancestor::span[@class="link-list lnk"]',
                     ),
             ),
         ).click()
@@ -105,33 +105,34 @@ def monitor_website(browser):
 
         driver.find_element(
             By.ID,
-            "em-search-form__searchstreet",
+            'em-search-form__searchstreet',
         ).send_keys(params["agency_name"])
 
         driver_wait.until(
             lambda driver: driver.find_element(
                 By.ID,
-                "em-search-form__searchstreet",
+                'em-search-form__searchstreet',
             ).get_attribute("value") == params["agency_name"]
-        ); logger.info(f"Searching agency \'{params['agency_name']}\'...")
+        ); logger.info(f'Searching agency \'{params["agency_name"]}\'...')
 
         driver.find_element(
             By.ID,
-            "em-search-form__searchcity"
+            'em-search-form__searchcity'
         ).send_keys(params["agency_postal_code"])
 
         driver_wait.until(
             lambda driver: driver.find_element(
                 By.ID,
-                "em-search-form__searchcity",
+                'em-search-form__searchcity',
             ).get_attribute("value") == params["agency_postal_code"]
-        ); logger.info(f"Searching agency postal code \'{params['agency_postal_code']}\'...")
+        ); logger.info(f'Searching agency postal code \'{params["agency_postal_code"]}\'...')
 
+        # Search
         driver_wait.until(
             EC.element_to_be_clickable(
                 (
                     By.CSS_SELECTOR,
-                    ".em-search-form__submit.em-button.em-button--primary",
+                    '.em-search-form__submit.em-button.em-button--primary',
                 ),
             ),
         ).click()
@@ -146,17 +147,17 @@ def monitor_website(browser):
             ),
         )
         ActionChains(driver).double_click(agency_waypoint).perform()
-        logger.info(f"Agency \'{params["agency_name"]}\' @ {params['agency_postal_code']} found.")
+        logger.info(f'Agency \'{params["agency_name"]}\' @ {params["agency_postal_code"]} found.')
         
         time.sleep(2)
 
-        logger.info(f"\'{params["website_url"]}\' is up and running.")
+        logger.info(f'\'{params["website_url"]}\' is up and running.')
 
     except Exception as e:
         logger.error(f"{e}")
         log_path = os.path.join(LOG_DIR, LOG_DATE)
         os.makedirs(log_path, exist_ok=True)
-        screenshot_path = os.path.join(log_path, f"error_screenshot_{browser}.png")
+        screenshot_path = os.path.join(log_path, f'error_screenshot_{browser}.png')
         driver.save_screenshot(screenshot_path)
 
     finally: driver.quit()
