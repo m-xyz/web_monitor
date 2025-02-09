@@ -16,7 +16,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 import xml.etree.ElementTree as ET
 import argparse
 
-LOG_DATE = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+LOG_DATE = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
 # Create a logger
 logger = logging.getLogger(__name__)
