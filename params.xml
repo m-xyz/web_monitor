@@ -1,0 +1,6 @@
+<parameters>
+    <website_url>https://www.banquepopulaire.fr/</website_url>
+    <agency_name>Lyon Perrache</agency_name>
+    <agency_postal_code>69000</agency_postal_code>
+    <event_wait>5</event_wait>
+</parameters>
