@@ -91,15 +91,38 @@ def monitor_website(browser="chrome"):
         ).click()
 
         # [4] Fill the form and search
-        driver.find_element(By.ID, "em-search-form__searchstreet").send_keys(f"{params["agency_name"]}\n")
-        driver.find_element(By.ID, "em-search-form__searchcity").send_keys(f"{params["agency_postal_code"]}\n")
+        #driver.find_element(By.ID, "em-search-form__searchstreet").send_keys(f"{params["agency_name"]}\n")
+        #driver.find_element(By.ID, "em-search-form__searchcity").send_keys(f"{params["agency_postal_code"]}\n")
+        #driver_wait.until(
+        #    EC.element_to_be_clickable(
+        #            (
+        #                By.CSS_SELECTOR,
+        #                ".em-search-form__submit.em-button.em-button--primary",
+        #            ),
+        #    ),
+        #).click()
+
+        # Fill in the first text box
+        driver.find_element(By.ID, "em-search-form__searchstreet").send_keys(params["agency_name"])
+
+        # Wait until the first text box contains the expected value
+        WebDriverWait(driver, 10).until(
+            lambda driver: driver.find_element(By.ID, "em-search-form__searchstreet").get_attribute("value") == params["agency_name"]
+        )
+
+        # Fill in the second text box
+        driver.find_element(By.ID, "em-search-form__searchcity").send_keys(params["agency_postal_code"])
+
+        # Wait until the second text box contains the expected value
+        WebDriverWait(driver, 10).until(
+            lambda driver: driver.find_element(By.ID, "em-search-form__searchcity").get_attribute("value") == params["agency_postal_code"]
+        )
+
+        # Wait for the search button to be clickable and click it
         driver_wait.until(
             EC.element_to_be_clickable(
-                    (
-                        By.CSS_SELECTOR,
-                        ".em-search-form__submit.em-button.em-button--primary",
-                    ),
-            ),
+                (By.CSS_SELECTOR, ".em-search-form__submit.em-button.em-button--primary")
+            )
         ).click()
 
 
