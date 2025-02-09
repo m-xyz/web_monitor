@@ -77,7 +77,7 @@ def monitor_website(browser="chrome"):
                     By.XPATH,
                     '//*[@id="consent_prompt_submit"]',
                 ),
-            )
+            ),
         ).click()
 
         # [3] Scroll down and click "Find an agency"
@@ -87,39 +87,37 @@ def monitor_website(browser="chrome"):
                         By.XPATH,
                         "//p[text()='Trouver une agence']/ancestor::span[@class='link-list lnk']",
                     ),
-            )
+            ),
         ).click()
 
         # [4] Fill the form and search
         driver.find_element(By.ID, "em-search-form__searchstreet").send_keys(f"{params["agency_name"]}\n")
         driver.find_element(By.ID, "em-search-form__searchcity").send_keys(f"{params["agency_postal_code"]}\n")
-
-        time.sleep(3)
-
         driver_wait.until(
             EC.element_to_be_clickable(
                     (
                         By.CSS_SELECTOR,
                         ".em-search-form__submit.em-button.em-button--primary",
                     ),
-            )
+            ),
         ).click()
 
-        time.sleep(3)
 
         # [5] Click on location 4 on the map
-        waypoint = WebDriverWait(driver, 10, poll_frequency=1).until(
-            EC.presence_of_element_located(
+        agency_waypoint = driver_wait.until(
+            EC.element_to_be_clickable(
                 (
                     By.XPATH,
-                    '//div[@id="searchmap"]//td[text()="4"]',
+                    f'//div[@id="searchmap"]//td[text()="{params["agency_number"]}"]',
                 ),
-            )
+            ),
         )
+        # TODO: Buffer here
+        ActionChains(driver).double_click(agency_waypoint).perform()
+        
+        time.sleep(2)
 
-        ActionChains(driver).double_click(waypoint).perform()
-
-        time.sleep(3)
+        print("Success")
 
     except Exception as e:
         print(f"[ERROR] {e}")
