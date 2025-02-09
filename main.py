@@ -11,8 +11,8 @@ from selenium.webdriver.edge.options import Options as EdgeOptions
 from selenium.webdriver.firefox.options import Options as FirefoxOptions
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.action_chains import ActionChains
 import xml.etree.ElementTree as ET
-
 
 def load_params(file_path):
     """
@@ -70,18 +70,23 @@ def monitor_website(browser="chrome"):
         driver.get(params["website_url"])
         driver_wait = WebDriverWait(driver, params["event_wait"])
 
-        time.sleep(3)
-
         # [2] Handle consent popup
-        driver_wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="consent_prompt_submit"]'))).click()
-
-        # [3] Scroll down and click "Find an agency"
         driver_wait.until(
             EC.element_to_be_clickable(
                 (
                     By.XPATH,
-                    "//p[text()='Trouver une agence']/ancestor::span[@class='link-list lnk']"
-                )
+                    '//*[@id="consent_prompt_submit"]',
+                ),
+            )
+        ).click()
+
+        # [3] Scroll down and click "Find an agency"
+        driver_wait.until(
+            EC.element_to_be_clickable(
+                    (
+                        By.XPATH,
+                        "//p[text()='Trouver une agence']/ancestor::span[@class='link-list lnk']",
+                    ),
             )
         ).click()
 
@@ -93,17 +98,28 @@ def monitor_website(browser="chrome"):
 
         driver_wait.until(
             EC.element_to_be_clickable(
-                (
-                    By.CSS_SELECTOR,
-                    ".em-search-form__submit.em-button.em-button--primary"
-                )
+                    (
+                        By.CSS_SELECTOR,
+                        ".em-search-form__submit.em-button.em-button--primary",
+                    ),
             )
         ).click()
 
         time.sleep(3)
 
         # [5] Click on location 4 on the map
-        # TODO: Implement this
+        waypoint = WebDriverWait(driver, 10, poll_frequency=1).until(
+            EC.presence_of_element_located(
+                (
+                    By.XPATH,
+                    '//div[@id="searchmap"]//td[text()="4"]',
+                ),
+            )
+        )
+
+        ActionChains(driver).double_click(waypoint).perform()
+
+        time.sleep(3)
 
     except Exception as e:
         print(f"[ERROR] {e}")
