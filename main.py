@@ -42,9 +42,7 @@ def load_params(file_path):
     :param file_path: the path to the XML file
     :return: a dictionary of parameters
     """
-    #tree = ET.parse(file_path)
-    root = ET.parse(file_path).getroot()
-    return {child.tag: child.text for child in root}
+    return {child.tag: child.text for child in ET.parse(file_path).getroot()}
 
 params = load_params("params.xml")
 
@@ -68,7 +66,7 @@ def monitor_website(browser):
     :param browser: the name of the browser to use (chrome, edge, or firefox)
     """
     try:
-        # Initialize WebDriver for the specified browser
+        # Init WebDriver
         driver = setup_driver(browser)
         driver.maximize_window()
 
@@ -102,7 +100,6 @@ def monitor_website(browser):
         logger.info("Find agency button clicked.")
 
         # [4] Fill the form and search
-
         driver.find_element(
             By.ID,
             'em-search-form__searchstreet',
@@ -137,7 +134,6 @@ def monitor_website(browser):
             ),
         ).click()
 
-        time.sleep(5)
         # [5] Click on location 4 on the map
         agency_waypoint = driver_wait.until(
             EC.element_to_be_clickable(
@@ -147,10 +143,10 @@ def monitor_website(browser):
                 ),
             ),
         )
-        ActionChains(driver).double_click(agency_waypoint).perform()
+        for _ in range(3): agency_waypoint.click()
         logger.info(f'Agency \'{params["agency_name"]}\' @ {params["agency_postal_code"]} found.')
         
-        time.sleep(2)
+        time.sleep(5)
 
         logger.info(f'\'{params["website_url"]}\' is up and running.')
 
@@ -174,7 +170,7 @@ def monitor_website(browser):
             logger.info(f"Execution log saved at: {error_log_path}")
         
         except Exception as screenshot_error:
-            logger.error(f"Failed to save screenshot or execution log: {screenshot_error}")
+            logger.error(f"Failed to save screenshot/execution log: {screenshot_error}")
 
     finally: driver.quit()
 
