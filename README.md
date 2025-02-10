@@ -23,7 +23,7 @@ Monitor website availability using Selenium.
 ## Installation
 ------------
 
-1. Clone the repository: `git clone https://github.com/your-username/website-availability-monitor.git`
+1. Clone the repository: `git clone https://github.com/<your-username>/website-availability-monitor.git`
 2. Install dependencies: `pip install -r requirements.txt`
 3. Adjust the configuration file if needed: `params.xml`
 
