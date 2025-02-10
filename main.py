@@ -42,8 +42,8 @@ def load_params(file_path):
     :param file_path: the path to the XML file
     :return: a dictionary of parameters
     """
-    tree = ET.parse(file_path)
-    root = tree.getroot()
+    #tree = ET.parse(file_path)
+    root = ET.parse(file_path).getroot()
     return {child.tag: child.text for child in root}
 
 params = load_params("params.xml")
@@ -137,6 +137,7 @@ def monitor_website(browser):
             ),
         ).click()
 
+        time.sleep(5)
         # [5] Click on location 4 on the map
         agency_waypoint = driver_wait.until(
             EC.element_to_be_clickable(
@@ -154,11 +155,26 @@ def monitor_website(browser):
         logger.info(f'\'{params["website_url"]}\' is up and running.')
 
     except Exception as e:
-        logger.error(f"{e}")
-        log_path = os.path.join(LOG_DIR, LOG_DATE)
-        os.makedirs(log_path, exist_ok=True)
-        screenshot_path = os.path.join(log_path, f'error_screenshot_{browser}.png')
-        driver.save_screenshot(screenshot_path)
+        logger.error(f'{e}')
+
+        error_dir = os.path.join(LOG_DIR, f'error_{LOG_DATE}')
+        os.makedirs(error_dir, exist_ok=True)
+        screenshot_path = os.path.join(error_dir, f'error_screenshot_{browser}.png')
+        
+        try:
+            driver.save_screenshot(screenshot_path)
+
+            logger.info(f'Screenshot saved at: {screenshot_path}')
+            
+            error_log_path = os.path.join(error_dir, f'execution_log_{browser}.log')
+            with open(log_path, 'r') as original_log:
+                with open(error_log_path, 'w') as error_log:
+                    error_log.write(original_log.read())
+            
+            logger.info(f"Execution log saved at: {error_log_path}")
+        
+        except Exception as screenshot_error:
+            logger.error(f"Failed to save screenshot or execution log: {screenshot_error}")
 
     finally: driver.quit()
 
